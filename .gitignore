@@ -1,0 +1,16 @@
+node_modules
+dist
+.next
+.env
+coverage
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# logs
+*.log
