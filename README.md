@@ -1,37 +1,213 @@
-# 📚 Hệ Thống Quản Lý Thư Viện Chuyên Nghiệp (Library Management System)
+# Library Management System
 
-![React](https://img.shields.io/badge/Frontend-React-blue?style=flat-square&logo=react)
-![NestJS](https://img.shields.io/badge/Backend-NestJS-ea2845?style=flat-square&logo=nestjs)
-![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?style=flat-square&logo=mysql)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+A full-stack library management system built with modern web technologies and enterprise-oriented database design principles.
 
-Hệ thống quản lý thư viện toàn diện được thiết kế với kiến trúc **Monorepo**, áp dụng các kỹ thuật xử lý dữ liệu nâng cao (Transactions, Row-level Locking, Triggers) để đảm bảo tính toàn vẹn và độ tin cậy tuyệt đối cho các nghiệp vụ mượn/trả sách và quản lý tài chính.
+The project follows a Monorepo architecture and implements advanced database techniques such as Transactions, Row-level Locking, Stored Procedures, and Triggers to ensure data consistency and reliability across borrowing, returning, and payment workflows.
 
 ---
 
-## ✨ Tính năng nổi bật (Nghiệp vụ cốt lõi)
+## Features
 
-- **Quản lý mượn/trả sách tự động:** Tự động hoàn trả tồn kho, cập nhật ngày giờ thực tế thông qua các `Trigger` ở tầng Database.
-- **Xử lý tài chính & Phạt trễ hạn:** Hệ thống tự động phát hiện trễ hạn và sinh phiếu phạt. Quá trình thanh toán áp dụng kỹ thuật `FOR UPDATE` (Row-level Locking) để ngăn chặn hoàn toàn lỗi tranh chấp dữ liệu (Race Condition) và thu tiền đúp.
-- **Khóa/Mở khóa thẻ Độc giả thông minh:** Tự động khóa thẻ khi độc giả nợ sách/tiền, và tự động kích hoạt lại thẻ (`Auto-Unlock`) ngay khi thanh toán dứt điểm công nợ.
-- **Tối ưu hóa Truy vấn (View & Stored Procedure):** Sử dụng `GROUP_CONCAT` gộp nhóm dữ liệu hiển thị, bảo mật logic nghiệp vụ bằng Stored Procedures, hạn chế tối đa việc Backend can thiệp trực tiếp vào dữ liệu thô.
+### Library Operations
+
+* Book inventory management
+* Borrow / return workflow
+* Reader account management
+* Staff management system
+* Authentication & role-based authorization
+
+### Database & Business Logic
+
+* Stored Procedures for business operations
+* Database Triggers for automated workflows
+* Row-level locking using `FOR UPDATE`
+* Automatic overdue fine generation
+* Automatic reader suspension/reactivation
+
+### System Design
+
+* Monorepo architecture
+* RESTful API design
+* JWT Authentication
+* Modular backend structure
+* Responsive frontend dashboard
 
 ---
 
-## 🛠 Công nghệ sử dụng
+## Tech Stack
 
-- **Frontend:** ReactJS (Vite), Axios, TailwindCSS .
-- **Backend:** NestJS (TypeScript), TypeORM / MySQL2.
-- **Database:** MySQL (Relational Database, Stored Procedures, Triggers, Views).
-- **Quản lý source code:** Git (Monorepo Workspace) với công cụ `concurrently`.
+### Frontend
+
+* ReactJS
+* Vite
+* TailwindCSS
+* Axios
+
+### Backend
+
+* NestJS
+* TypeScript
+* MySQL2
+
+### Database
+
+* MySQL 8+
+* Stored Procedures
+* Triggers
+* Views
+* Transactions
 
 ---
 
-## 📂 Cấu trúc thư mục (Monorepo)
+## Project Structure
+
 ```text
-QuanLyThuVien/
-├── backend/                # Source code NestJS (API & Services)
-├── frontend/               # Source code React (UI/UX)
-├── database/               # (Tùy chọn) Chứa file .sql để import CSDL
-├── package.json            # Cấu hình script chạy song song cả 2 project
+Library-management/
+├── backend/        # NestJS API server
+├── frontend/       # React frontend application
+├── database/       # SQL initialization scripts
+├── package.json
 └── README.md
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Before running the project, make sure the following tools are installed on your machine:
+
+* Git
+* Node.js (LTS version recommended)
+* MySQL 8+
+
+Recommended database tools:
+
+* DBeaver
+* MySQL Workbench
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ThaiDevv/FullStack-Project-library-management.git
+```
+
+Move into the project directory:
+
+```bash
+cd FullStack-Project-library-management
+```
+
+Install root dependencies:
+
+```bash
+npm install
+```
+
+Install backend dependencies:
+
+```bash
+cd backend
+npm install
+```
+
+Install frontend dependencies:
+
+```bash
+cd ../frontend
+npm install
+```
+
+Return to the root directory:
+
+```bash
+cd ..
+```
+
+---
+
+## Database Setup
+
+Create a new MySQL database:
+
+```sql
+CREATE DATABASE railway
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+```
+
+Import the SQL initialization script located in:
+
+```text
+database/init.sql
+```
+
+or:
+
+```text
+railway.sql
+```
+
+The script will automatically create:
+
+* tables
+* triggers
+* stored procedures
+* views
+* sample data
+
+---
+
+## Environment Variables
+
+Create a `.env` file inside the `backend/` directory:
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=railway
+
+PORT=3000
+```
+
+---
+
+## Running the Application
+
+Start both frontend and backend concurrently:
+
+```bash
+npm run dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+Backend API:
+
+```text
+http://localhost:3000
+```
+
+---
+
+## Authors
+
+Developed collaboratively by:
+
+* Trần Văn Thái
+* Trần Văn Ngọc Thắng
+* Nguyễn Lê Huy Tâm
+* Phạm Trí Tâm
+* Nguyễn Ngọc Gia Bảo
+
