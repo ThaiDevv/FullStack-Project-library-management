@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { fineApi, type Fine } from '../../services/api/fine.api';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 import { Search, CreditCard, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';

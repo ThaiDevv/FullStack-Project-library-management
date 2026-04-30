@@ -19,6 +19,18 @@ const ReportPage = () => {
   const [tuNgay, setTuNgay] = useState(format(subDays(new Date(), 30), 'yyyy-MM-dd'));
   const [denNgay, setDenNgay] = useState(format(new Date(), 'yyyy-MM-dd'));
 
+  const formatDisplayDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return '—';
+    try {
+      const datePart = dateStr.split('T')[0];
+      const [year, month, day] = datePart.split('-');
+      if (!year || !month || !day) return '—';
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return '—';
+    }
+  };
+
   const fetchAll = async () => {
     setIsLoading(true);
     // Fetch reports independently to be more resilient

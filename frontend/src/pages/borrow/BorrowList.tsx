@@ -25,7 +25,6 @@ const BorrowList = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [maDocGia, setMaDocGia] = useState('');
-  const [selectedBooks, setSelectedBooks] = useState<Book[]>([]);
   const [bookSearch, setBookSearch] = useState('');
   const [tuNgay, setTuNgay] = useState('');
   const [denNgay, setDenNgay] = useState('');
@@ -64,7 +63,7 @@ const BorrowList = () => {
         readerApi.getAll(),
       ]);
 
-      const sorted = [...ticketsData].sort((a: any, b: any) =>
+      const sorted = [...(ticketsData as BorrowTicket[])].sort((a: any, b: any) =>
         new Date(b.NgayMuon || 0).getTime() - new Date(a.NgayMuon || 0).getTime()
       );
       setTickets(sorted);

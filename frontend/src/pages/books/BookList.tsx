@@ -224,7 +224,7 @@ const BookList = () => {
           ) : (
             books.map((book) => {
               const category = categories.find((c) => c.MaTheLoai === book.MaTheLoai);
-              const qty = book.SoLuongTon ?? book.Quantity ?? 0;
+              const qty = (book as any).SoLuongTon ?? book.Quantity ?? 0;
               return (
                 <TableRow key={book.MaDauSach}>
                   <TableCell className="font-semibold text-notion-text">{book.MaDauSach}</TableCell>

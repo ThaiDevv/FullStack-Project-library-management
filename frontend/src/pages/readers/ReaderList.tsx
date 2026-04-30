@@ -72,7 +72,7 @@ const ReaderList = () => {
         } as any);
         toast.success('Cập nhật độc giả thành công');
       } else {
-        await readerApi.create(formData);
+        await readerApi.create(formData as any);
         toast.success('Thêm độc giả thành công');
       }
       setIsModalOpen(false);
@@ -103,11 +103,7 @@ const ReaderList = () => {
     }
   };
 
-  const statusColors: Record<string, string> = {
-    'Hoạt động': 'bg-green-100 text-green-800',
-    'Bị Khóa': 'bg-red-100 text-red-800',
-    'Bị khóa': 'bg-red-100 text-red-800',
-  };
+
 
   return (
     <div className="space-y-6">

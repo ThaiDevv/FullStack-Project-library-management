@@ -4,6 +4,7 @@ export interface Staff {
   MaNV: string;
   HoTen: string;
   DienThoai?: string;
+  SDT?: string;
   Email?: string;
   DiaChi?: string;
   vaitro?: string;
