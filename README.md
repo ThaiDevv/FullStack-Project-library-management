@@ -208,6 +208,6 @@ Developed collaboratively by:
 * Trần Văn Thái
 * Trần Văn Ngọc Thắng
 * Nguyễn Lê Huy Tâm
-* Phạm Trí Tâm
+* Phạm Bá Trí Tâm
 * Nguyễn Ngọc Gia Bảo
 
