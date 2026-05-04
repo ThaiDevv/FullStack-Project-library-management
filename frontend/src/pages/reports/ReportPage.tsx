@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, Legend,
 } from 'recharts';
-import { BookOpen, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
+import { BookOpen, AlertTriangle, TrendingUp, Clock, Download } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import toast from 'react-hot-toast';
 import { format, subDays } from 'date-fns';
@@ -98,6 +98,24 @@ const ReportPage = () => {
     }
     
     return String(val);
+  };
+
+  const exportCurrentlyBorrowedToJson = () => {
+    if (currentlyBorrowed.length === 0) {
+      toast.error('Không có dữ liệu để xuất');
+      return;
+    }
+    const dataStr = JSON.stringify(currentlyBorrowed, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `sach-dang-muon-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Đã tải xuống danh sách sách đang mượn (JSON)');
   };
 
   useEffect(() => {
@@ -248,13 +266,24 @@ const ReportPage = () => {
         )}
       </div>
 
-      {/* Currently Borrowed */}
       <div className="bg-notion-bg p-6 rounded-2xl shadow-notion-card border border-notion-border">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-[22px] font-bold text-notion-text tracking-notion-title">Sách đang được Mượn</h3>
-          <span className="bg-notion-badgeBg text-notion-badgeText text-xs font-semibold px-3 py-1 rounded-full tracking-notion-badge">
-            {currentlyBorrowed.length} cuốn
-          </span>
+          <div className="flex items-center gap-3">
+            <h3 className="text-[22px] font-bold text-notion-text tracking-notion-title">Sách đang được Mượn</h3>
+            <span className="bg-notion-badgeBg text-notion-badgeText text-xs font-semibold px-3 py-1 rounded-full tracking-notion-badge">
+              {currentlyBorrowed.length} cuốn
+            </span>
+          </div>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={exportCurrentlyBorrowedToJson}
+            disabled={currentlyBorrowed.length === 0 || isLoading}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            <span>Xuất JSON</span>
+          </Button>
         </div>
         {isLoading ? (
           <p className="text-sm text-notion-textMuted font-medium">Đang tải...</p>

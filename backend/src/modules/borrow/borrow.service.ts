@@ -24,10 +24,12 @@ export class BorrowService {
   }
   async updateDeadline(updateBorrowDto: updateBorrowDto) {
     try {
+      console.log("bắt đầu chạy");
       const { MaPM, SoNgayThem } = updateBorrowDto;
       const sql = 'CALL GiaHanSach(?,?)';
       const params = [MaPM, SoNgayThem];
       const result = await this.db.query(sql, params);
+      console.log(`kết thúc chạy quá trình: ${MaPM}`);
       return {
         success: true,
         message: 'cap nhat Phieu Muon thành công!',

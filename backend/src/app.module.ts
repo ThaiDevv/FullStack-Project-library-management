@@ -26,4 +26,4 @@ import { FinesModule } from './modules/fines/fines.module';
   controllers: [],
   providers: [DatabaseService],
 })
-export class AppModule {}
+export class AppModule { }
