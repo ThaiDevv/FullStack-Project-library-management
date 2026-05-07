@@ -42,5 +42,11 @@ export class ReportController {
   overdueTickets() {
     return this.reportService.overdueTickets();
   }
+
+  // GET /reports/export-phantom-demo — Demo lỗi bóng ma
+  @Get('export-phantom-demo')
+  exportPhantomDemo() {
+    return this.reportService.exportPhantomDemo();
+  }
 }
 

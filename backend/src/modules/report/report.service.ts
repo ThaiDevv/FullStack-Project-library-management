@@ -35,4 +35,12 @@ export class ReportService {
     );
     return result;
   }
+
+  async exportPhantomDemo() {
+    const result = await this.db.query('CALL sp_DemoPhantomRead()');
+    return {
+      uiData: result[0],     
+      jsonData: result[1]  
+    };
+  }
 }
