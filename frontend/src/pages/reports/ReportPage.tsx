@@ -48,7 +48,7 @@ const ReportPage = () => {
       const overdue = await reportApi.overdueTickets();
       setOverdueTickets(overdue);
     } catch (e) { console.error('Overdue tickets failed', e); }
-    
+
     setIsLoading(false);
   };
 
@@ -83,7 +83,7 @@ const ReportPage = () => {
 
   const renderCellContent = (key: string, val: any) => {
     if (val === null || val === undefined) return '—';
-    
+
     // Check if key implies a date
     const lowerKey = key.toLowerCase();
     if (lowerKey.includes('ngay') || lowerKey.includes('date') || lowerKey.includes('han')) {
@@ -91,31 +91,47 @@ const ReportPage = () => {
         return formatDisplayDate(val);
       }
     }
-    
+
     // Format numbers for currency if it's a fine
     if (lowerKey.includes('tien') || lowerKey.includes('phat')) {
       return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(val));
     }
-    
+
     return String(val);
   };
 
-  const exportCurrentlyBorrowedToJson = () => {
-    if (currentlyBorrowed.length === 0) {
-      toast.error('Không có dữ liệu để xuất');
-      return;
+  const exportCurrentlyBorrowedToJson = async () => {
+    const toastId = toast.loading('Đang tải dữ liệu...');
+    try {
+      const res = await reportApi.exportPhantomDemo();
+
+      // Cập nhật lại giao diện ngay lúc này bằng dữ liệu đọc lần 1
+      if (res.uiData) {
+        setCurrentlyBorrowed(res.uiData);
+      }
+
+      if (!res.jsonData || res.jsonData.length === 0) {
+        toast.error('Không có dữ liệu để xuất', { id: toastId });
+        return;
+      }
+
+      // Dùng dữ liệu đọc lần 2 (có thể có bóng ma) để tạo file JSON
+      const dataStr = JSON.stringify(res.jsonData, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sach-dang-muon-phantom-${format(new Date(), 'yyyy-MM-dd')}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('Đã xuất JSON! Hãy đối chiếu số lượng trên màn hình và trong file', { id: toastId, duration: 8000 });
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Lỗi khi tải dữ liệu từ CSDL', { id: toastId });
     }
-    const dataStr = JSON.stringify(currentlyBorrowed, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `sach-dang-muon-${format(new Date(), 'yyyy-MM-dd')}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast.success('Đã tải xuống danh sách sách đang mượn (JSON)');
   };
 
   useEffect(() => {
@@ -148,12 +164,12 @@ const ReportPage = () => {
         <StatCard title="Thể loại sách" value={booksByCategory.length} icon={BookOpen} colorClass="bg-blue-500" subtitle="số thể loại" />
         <StatCard title="Đang mượn" value={currentlyBorrowed.length} icon={TrendingUp} colorClass="bg-purple-500" subtitle="cuốn sách" />
         <StatCard title="Phiếu quá hạn" value={overdueTickets.length} icon={AlertTriangle} colorClass="bg-red-500" subtitle="cần xử lý" />
-        <StatCard 
-          title="Thống kê kỳ này" 
-          value={borrowStats.reduce((acc, curr) => acc + (Object.values(curr).slice(1).reduce((a: any, b: any) => a + (Number(b) || 0), 0)), 0)} 
-          icon={Clock} 
-          colorClass="bg-amber-500" 
-          subtitle="tổng lượt giao dịch" 
+        <StatCard
+          title="Thống kê kỳ này"
+          value={borrowStats.reduce((acc, curr) => acc + (Object.values(curr).slice(1).reduce((a: any, b: any) => a + (Number(b) || 0), 0)), 0)}
+          icon={Clock}
+          colorClass="bg-amber-500"
+          subtitle="tổng lượt giao dịch"
         />
       </div>
 
@@ -174,9 +190,9 @@ const ReportPage = () => {
                   axisLine={false} tickLine={false} tick={{ fontSize: 12 }} angle={-35} textAnchor="end" />
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                <Bar 
-                  dataKey={booksByCategory[0]?.TongSoSach !== undefined ? 'TongSoSach' : (Object.keys(booksByCategory[0] || {}).find(k => k.toLowerCase().includes('so') || k.toLowerCase().includes('tong')) || Object.keys(booksByCategory[0] || {})[1])} 
-                  fill="#3b82f6" radius={[4, 4, 0, 0]} name="Số sách" 
+                <Bar
+                  dataKey={booksByCategory[0]?.TongSoSach !== undefined ? 'TongSoSach' : (Object.keys(booksByCategory[0] || {}).find(k => k.toLowerCase().includes('so') || k.toLowerCase().includes('tong')) || Object.keys(booksByCategory[0] || {})[1])}
+                  fill="#3b82f6" radius={[4, 4, 0, 0]} name="Số sách"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -274,11 +290,11 @@ const ReportPage = () => {
               {currentlyBorrowed.length} cuốn
             </span>
           </div>
-          <Button 
-            size="sm" 
-            variant="outline" 
+          <Button
+            size="sm"
+            variant="outline"
             onClick={exportCurrentlyBorrowedToJson}
-            disabled={currentlyBorrowed.length === 0 || isLoading}
+            disabled={isLoading}
             className="flex items-center gap-2"
           >
             <Download className="w-4 h-4" />

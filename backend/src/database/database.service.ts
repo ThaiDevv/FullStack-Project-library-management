@@ -46,4 +46,5 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     const [rows] = await this.pool.execute(sql, params);
     return rows;
   }
+
 }
