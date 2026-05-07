@@ -7,50 +7,100 @@ import { searchDto } from './dto/searchBorrow.dto';
 
 @Injectable()
 export class BorrowService {
-  constructor(private readonly db: DatabaseService) {}
+  constructor(private readonly db: DatabaseService) { }
+
+  // ================== GIỮ NGUYÊN ==================
   async creatBorrow(CreatborrowDto: creatBorrowDto) {
     try {
       const { MaDocGia, MaNV, NgayTraDuKien, DanhSach } = CreatborrowDto;
       const sql = 'CALL ThucHienMuonNhieuSach(?,?,?,?)';
-      const params = [MaDocGia, MaNV, NgayTraDuKien, DanhSach];
-      const result = await this.db.query(sql, params);
+
+      // ⚠️ FIX JSON
+      const params = [
+        MaDocGia,
+        MaNV,
+        NgayTraDuKien,
+        JSON.stringify(DanhSach)
+      ];
+
+      await this.db.query(sql, params);
+
       return {
         success: true,
-        message: 'Thêm Phieu Muon thành công!',
+        message: 'Thêm Phiếu Mượn thành công!',
       };
     } catch (error) {
-      throw new Error(`Lỗi khi thêm PHieu Muon: ${error.message}`);
+      throw new Error(`Lỗi khi thêm Phiếu Mượn: ${error.message}`);
     }
   }
+
+  // ================== DEMO DIRTY READ ==================
+  async demoBorrow(CreatborrowDto: creatBorrowDto) {
+    try {
+      const { MaDocGia, MaNV, NgayTraDuKien, DanhSach } = CreatborrowDto;
+
+      const sql = 'CALL DemoMuonSach(?,?,?,?)';
+
+      const params = [
+        MaDocGia,
+        MaNV,
+        NgayTraDuKien,
+        JSON.stringify(DanhSach) // ⚠️ bắt buộc
+      ];
+
+      await this.db.query(sql, params);
+
+      return {
+        success: true,
+        message: 'Đang chạy transaction (sleep 10s để demo Dirty Read)...',
+      };
+
+    } catch (error) {
+      // ⚠️ sẽ bắt SIGNAL rollback từ MySQL
+      throw new BadRequestException(
+        `Giao dịch bị rollback (demo dirty read): ${error.message}`
+      );
+    }
+  }
+
+  // ================== UPDATE ==================
   async updateDeadline(updateBorrowDto: updateBorrowDto) {
     try {
       console.log("bắt đầu chạy");
+
       const { MaPM, SoNgayThem } = updateBorrowDto;
       const sql = 'CALL GiaHanSach(?,?)';
       const params = [MaPM, SoNgayThem];
-      const result = await this.db.query(sql, params);
+
+      await this.db.query(sql, params);
+
       console.log(`kết thúc chạy quá trình: ${MaPM}`);
+
       return {
         success: true,
-        message: 'cap nhat Phieu Muon thành công!',
+        message: 'Cập nhật Phiếu Mượn thành công!',
       };
     } catch (error) {
-      throw new Error(`Lỗi khi cap nhat PHieu Muon: ${error.message}`);
+      throw new Error(`Lỗi khi cập nhật Phiếu Mượn: ${error.message}`);
     }
   }
+
+  // ================== DELETE ==================
   async deleteBorrow(MaPM: string) {
     try {
-      const sql = 'DELETE FROM phieumuon WHERE phieumuon.MaPM = ?';
-      const params = [MaPM];
-      const result = await this.db.query(sql, params);
+      const sql = 'DELETE FROM phieumuon WHERE MaPM = ?';
+      await this.db.query(sql, [MaPM]);
+
       return {
         success: true,
-        message: 'xoa Phieu Muon thành công!',
+        message: 'Xóa Phiếu Mượn thành công!',
       };
     } catch (error) {
-      throw new Error(`Lỗi khi xoa PHieu Muon: ${error.message}`);
+      throw new Error(`Lỗi khi xóa Phiếu Mượn: ${error.message}`);
     }
   }
+
+  // ================== SEARCH ==================
   async findAll(SearchDto: searchDto) {
     try {
       const { TenDocGia, TuNgay, DenNgay } = SearchDto;
@@ -60,40 +110,66 @@ export class BorrowService {
 
       const result = await this.db.query(sql, params);
       return result[0];
+
     } catch (error) {
       throw new BadRequestException(
         `Lỗi khi Tìm Kiếm Phiếu Mượn: ${error.message}`,
       );
     }
   }
+
+  // ================== DEMO READ ==================
+  async getAllPhieuMuon() {
+    try {
+      const sql = 'SELECT * FROM phieumuon ORDER BY NgayMuon DESC';
+      const result = await this.db.query(sql);
+
+      return result;
+
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  // ================== ADD BOOK ==================
   async addBookinBorrow(addBookDto: add_DelBookDto) {
     try {
       const { MaPM, DanhSach } = addBookDto;
-      const sql = 'Call ThemSachVaoPhieuMuon(?,?)';
-      const params = [MaPM, DanhSach];
-      const result = await this.db.query(sql, params);
+
+      const sql = 'CALL ThemSachVaoPhieuMuon(?,?)';
+      const params = [MaPM, JSON.stringify(DanhSach)];
+
+      await this.db.query(sql, params);
+
       return {
         success: true,
-        message: 'Them sach vao Phieu Muon thành công!',
+        message: 'Thêm sách vào Phiếu Mượn thành công!',
       };
     } catch (error) {
-      throw new Error(`Lỗi khi Them sach vao PHieu Muon: ${error.message}`);
+      throw new Error(`Lỗi khi thêm sách: ${error.message}`);
     }
   }
-  async deleteBookInBorrow(delBookDto: add_DelBookDto){
+
+  // ================== DELETE BOOK ==================
+  async deleteBookInBorrow(delBookDto: add_DelBookDto) {
     try {
       const { MaPM, DanhSach } = delBookDto;
-      const sql = 'Call ThucHienTraSach(?,?)';
-      const params = [MaPM, DanhSach];
-      const result = await this.db.query(sql, params);
+
+      const sql = 'CALL ThucHienTraSach(?,?)';
+      const params = [MaPM, JSON.stringify(DanhSach)];
+
+      await this.db.query(sql, params);
+
       return {
         success: true,
         message: 'Trả sách thành công!',
       };
     } catch (error) {
-      throw new Error(`Lỗi khi Trả sách: ${error.message}`);
+      throw new Error(`Lỗi khi trả sách: ${error.message}`);
     }
   }
+
+  // ================== FIND ONE ==================
   async findOne(MaPM: string) {
     const result = await this.db.query(
       'SELECT * FROM v_phieumuonchitiet WHERE MaPM = ?',
@@ -101,10 +177,13 @@ export class BorrowService {
     );
     return result[0] ?? null;
   }
+
+  // ================== RETURN ALL ==================
   async returnBooks(MaPM: string) {
     try {
       const sql = 'CALL TraNhieuSach(?)';
-      const result = await this.db.query(sql, [MaPM]);
+      await this.db.query(sql, [MaPM]);
+
       return {
         success: true,
         message: 'Trả sách thành công!',
